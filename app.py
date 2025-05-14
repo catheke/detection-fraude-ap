@@ -19,52 +19,52 @@ except:
 
 # Título principal
 st.title("💳 Detector de Fraudes em Cartões de Crédito")
-st.markdown("Desenvolvido por **Pedro Calenga**, estudante da Universidade Mandume Ya Ndemufayo - Instituto Politécnico da Huíla")
+st.markdown("Desenvolvido por Pedro Calenga, estudante da Universidade Mandume Ya Ndemufayo - Instituto Politécnico da Huíla")
 
 # Seção: Sobre Mim
 st.header("👨‍🎓 Sobre Mim")
 st.markdown("""
 **Pedro Calenga**  
 Estudante do 3º ano de Ciência da Computação na **Universidade Mandume Ya Ndemufayo - Instituto Politécnico da Huíla**, Lubango, Angola.  
-Meu interesse por inteligência artificial e ciência de dados me levou a desenvolver este projeto, que aborda a detecção de fraudes em cartões de crédito usando machine learning. Este trabalho combina teoria acadêmica com aplicações práticas, visando contribuir para a segurança financeira em Angola, onde o uso de pagamentos digitais está em ascensão. O projeto reflete meu compromisso com soluções tecnológicas inovadoras e escaláveis.
+Apaixonado por inteligência artificial e ciência de dados, este projeto reflete meu interesse em aplicar machine learning para resolver problemas reais, como a detecção de fraudes em transações financeiras. Meu objetivo é contribuir para a segurança digital em Angola, onde o uso de cartões de crédito está em crescimento. Este trabalho demonstra minha capacidade de combinar teoria acadêmica com aplicações práticas, preparando-me para desafios no mercado tecnológico.
 """)
 
 # Seção: Sobre o Projeto
 st.header("📋 Sobre o Projeto")
 st.markdown("""
 ### Contexto do Problema
-A detecção de fraudes em cartões de crédito é crucial para proteger consumidores e instituições financeiras. Este projeto utiliza o dataset **Credit Card Fraud Detection** do Kaggle, com 284.807 transações, sendo apenas 492 fraudulentas (0,17%). O desafio é detectar fraudes em um dataset altamente desbalanceado, minimizando falsos negativos (fraudes não detectadas), que geram perdas financeiras.
+A detecção de fraudes em cartões de crédito é essencial no setor financeiro, especialmente em um mundo onde transações digitais crescem exponencialmente. Este projeto utiliza o dataset **Credit Card Fraud Detection** do Kaggle, com 284.807 transações, sendo apenas 492 fraudulentas (0,17%). O desafio é detectar essas fraudes em um dataset altamente desbalanceado.
 
 ### Escolha do Random Forest
-O modelo **Random Forest** foi escolhido por:
-- **Robustez a dados desbalanceados**: Combina múltiplas árvores de decisão, reduzindo overfitting.
-- **Compatibilidade com features PCA**: As colunas `V1` a `V28` são anonimizadas via PCA, e o Random Forest lida bem com dados complexos sem suposições de distribuição.
-- **Minimização de falsos negativos**: Com recall de 0,78 para fraudes, o modelo detecta 78% das fraudes, reduzindo perdas.
-- **Comparação com Regressão Logística**: Testei Regressão Logística (AUC 0,9272, recall 0,70, falsos negativos 44), mas o Random Forest foi superior (AUC 0,93, recall 0,78, falsos negativos 33).
+O modelo **Random Forest** foi selecionado por várias razões:
+- **Robustez**: Combina múltiplas árvores de decisão, reduzindo overfitting e lidando bem com dados desbalanceados.
+- **Capacidade de lidar com features PCA**: As colunas `V1` a `V28` são anonimizadas via PCA, e o Random Forest não requer suposições sobre a distribuição dos dados.
+- **Importância de features**: Permite identificar quais variáveis (ex.: `V14`, `V17`) são mais relevantes para detectar fraudes.
+- **Minimização de falsos negativos**: Falsos negativos (fraudes não detectadas) são críticos em aplicações financeiras. O Random Forest, combinado com SMOTE, otimiza o recall para a classe fraudulenta.
+- **Comparação com outros modelos**: Testei Regressão Logística, mas o Random Forest superou em métricas como AUC-ROC (0,93 vs. 0,90) e recall para fraudes (0,78 vs. 0,70).
 
-### Balanceamento com SMOTE
-O dataset original é desbalanceado (284.315 não fraudes vs. 492 fraudes). O **SMOTE** (Synthetic Minority Oversampling Technique) foi usado para:
-- Criar amostras sintéticas da classe minoritária, resultando em 199.020 instâncias por classe no conjunto de treino.
-- Melhorar o aprendizado do modelo para padrões de fraudes, evitando viés para a classe majoritária.
+### Uso do SMOTE
+O dataset é desbalanceado (284.315 não fraudes vs. 492 fraudes). Para resolver isso:
+- **SMOTE** (Synthetic Minority Oversampling Technique) foi usado para criar amostras sintéticas da classe minoritária (fraudes), balanceando o conjunto de treino para 199.020 instâncias de cada classe.
+- Isso melhora a capacidade do modelo de aprender padrões de fraudes sem enviesar para a classe majoritária.
 
-### Relevância para Angola
-Com o crescimento dos pagamentos digitais em Angola, um modelo eficiente de detecção de fraudes pode proteger consumidores e bancos, promovendo confiança no sistema financeiro.
+### Relevância
+Este projeto é relevante para Angola, onde a digitalização financeira está crescendo. Um modelo eficiente pode proteger consumidores e instituições, reduzindo perdas financeiras.
 """)
 
 # Seção: Análise do Dataset
 st.header("📊 Análise do Dataset")
 st.markdown("""
-O dataset contém 284.807 transações com 31 colunas: `Time`, `Amount`, `V1` a `V28` (features anonimizadas via PCA) e `Class` (0 para não fraude, 1 para fraude). Abaixo, mostramos a distribuição das classes e um exemplo de dados normalizados.
+O dataset contém 284.807 transações, com 31 colunas: `Time`, `Amount`, `V1` a `V28` (features anonimizadas via PCA) e `Class` (0 para não fraude, 1 para fraude). Abaixo, mostramos a distribuição das classes e estatísticas descritivas.
 """)
 
 # Distribuição das classes
-st.subheader("Distribuição das Classes")
-class_counts = pd.Series([284315, 492], index=['Não Fraude (0)', 'Fraude (1)'])
+class_counts = pd.Series([284315, 492], index=['Não Fraude', 'Fraude'])
 fig_class = px.bar(x=class_counts.index, y=class_counts.values, labels={'x': 'Classe', 'y': 'Número de Transações'},
-                   title='Distribuição das Classes', color=class_counts.index, text=class_counts.values)
+                   title='Distribuição das Classes (0: Não Fraude, 1: Fraude)', color=class_counts.index)
 fig_class.update_layout(annotations=[
     go.layout.Annotation(
-        text="Apenas 0,17% das transações são fraudulentas (492/284.807), indicando um dataset altamente desbalanceado.",
+        text="Apenas 0,17% das transações são fraudulentas, indicando um dataset altamente desbalanceado.",
         align='left', showarrow=False, xref='paper', yref='paper', x=1.2, y=1.0
     )
 ])
@@ -72,7 +72,7 @@ st.plotly_chart(fig_class, use_container_width=True)
 
 # Dados normalizados (exemplo)
 st.subheader("Exemplo de Dados Normalizados")
-st.markdown("As colunas `Time` e `Amount` foram normalizadas com `StandardScaler` para alinhar com as features PCA (`V1` a `V28`).")
+st.markdown("As colunas `Time` e `Amount` foram normalizadas usando StandardScaler para manter consistência com as features PCA (`V1` a `V28`).")
 sample_data = pd.DataFrame({
     'V1': [-1.359807, 1.191857, -1.358354, -0.966272, -1.158233],
     'V2': [-0.072781, 0.266151, -1.340163, -0.185226, 0.877737],
@@ -93,26 +93,16 @@ st.dataframe(sample_data)
 # Seção: Desempenho do Modelo
 st.header("📈 Desempenho do Modelo")
 st.markdown("""
-Abaixo, apresentamos as métricas de desempenho do modelo Random Forest no conjunto de teste (85.443 instâncias):
-- **Acurácia**: 1.00 (99,96% das previsões corretas).
-- **Falsos Positivos (FP)**: 19 (transações legítimas classificadas como fraudes).
-- **Falsos Negativos (FN)**: 33 (fraudes não detectadas, críticas para perdas financeiras).
-- **Precisão para fraudes**: 0,86 (86% das transações classificadas como fraudes são realmente fraudes).
-- **Recall para fraudes**: 0,78 (78% das fraudes foram detectadas).
-- **F1-score para fraudes**: 0,82 (equilíbrio entre precisão e recall).
-- **AUC-ROC**: 0,93 (excelente capacidade de distinguir entre classes).
+O modelo foi avaliado com base em:
+- **Matriz de Confusão**: Mostra verdadeiros positivos (TP), falsos positivos (FP), verdadeiros negativos (TN) e falsos negativos (FN).
+- **Relatório de Classificação**: Inclui precisão, recall, F1-score e suporte.
+- **Curva ROC e AUC**: Avalia a capacidade do modelo de distinguir entre classes.
+- **Falsos Positivos e Negativos**:
+  - **Falsos Positivos (FP)**: Transações legítimas marcadas como fraudes (19 no teste), causando inconveniência ao cliente.
+  - **Falsos Negativos (FN)**: Fraudes não detectadas (33 no teste), resultando em perdas financeiras. O modelo prioriza minimizar FN.
 """)
 
-# Métricas em tabela
-st.subheader("Métricas Detalhadas")
-metrics_data = {
-    'Métrica': ['Acurácia', 'Falsos Positivos (FP)', 'Falsos Negativos (FN)', 'Precisão (Fraude)', 'Recall (Fraude)', 'F1-score (Fraude)', 'AUC-ROC'],
-    'Valor': [1.00, 19, 33, 0.86, 0.78, 0.82, 0.93]
-}
-st.table(metrics_data)
-
 # Matriz de Confusão
-st.subheader("Matriz de Confusão")
 cm = np.array([[85276, 19], [33, 115]])
 fig_cm = go.Figure(data=go.Heatmap(
     z=cm,
@@ -146,7 +136,7 @@ report = {
 }
 st.dataframe(pd.DataFrame(report).transpose())
 
-# Curva ROC
+# Curva ROC (estimativa com base no AUC fornecido)
 st.subheader("Curva ROC")
 fpr = np.linspace(0, 1, 100)
 tpr = np.linspace(0, 1, 100) ** 0.5  # Simulação para visualização
@@ -198,46 +188,45 @@ if submitted:
 st.header("🛠 Justificativas Técnicas")
 st.markdown("""
 ### Pré-processamento
-- **Normalização**: As colunas `Time` e `Amount` foram normalizadas com `StandardScaler` para alinhar com as features PCA (`V1` a `V28`), garantindo consistência no modelo.
-- **Manutenção da coluna Time**: Apesar de normalizada, `Time` foi mantida, mas seu impacto é mínimo devido à anonimização do dataset.
+- **Normalização**: As colunas `Time` e `Amount` foram normalizadas com `StandardScaler` para manter consistência com as features PCA (`V1` a `V28`).
+- **Remoção de Time**: Embora normalizada, a coluna `Time` foi mantida no modelo, mas seu impacto é mínimo devido à anonimização do dataset.
 
 ### Balanceamento com SMOTE
-- O dataset original tem 284.315 não fraudes e 492 fraudes (0,17%). O SMOTE criou amostras sintéticas, resultando em 199.020 instâncias por classe no conjunto de treino.
-- Isso permitiu que o modelo aprendesse padrões de fraudes, reduzindo o viés para a classe majoritária.
+- O dataset original tem 284.315 não fraudes e 492 fraudes (0,17%). O SMOTE foi aplicado para criar amostras sintéticas, resultando em 199.020 instâncias por classe no conjunto de treino.
+- Isso garante que o modelo aprenda padrões das fraudes, evitando viés para a classe majoritária.
 
 ### Comparação com Regressão Logística
-Testei a **Regressão Logística** (métricas fornecidas):
-- **AUC**: 0,9272 (Regressão Logística) vs. 0,93 (Random Forest).
-- **Recall para fraudes**: 0,70 (Regressão Logística) vs. 0,78 (Random Forest).
-- **Falsos Negativos**: 44 (Regressão Logística) vs. 33 (Random Forest).
-O Random Forest foi escolhido por sua superioridade em detectar fraudes e minimizar falsos negativos.
+Testei a **Regressão Logística** (resultados fornecidos: AUC 0,9272, recall para fraudes 0,70), mas o Random Forest foi superior:
+- **AUC**: 0,93 (Random Forest) vs. 0,9272 (Regressão Logística).
+- **Recall para fraudes**: 0,78 (Random Forest) vs. 0,70 (Regressão Logística).
+- **Falsos Negativos**: 33 (Random Forest) vs. 44 (Regressão Logística), indicando melhor detecção de fraudes.
 
-### Importância das Métricas
-- **Falsos Negativos (33)**: Fraudes não detectadas são o maior risco, pois resultam em perdas financeiras. O recall de 0,78 indica que 78% das fraudes foram detectadas.
-- **Falsos Positivos (19)**: Transações legítimas marcadas como fraudes causam inconveniência, mas são menos críticas. A baixa taxa de FP (19/85.295) mostra precisão.
-- **Acurácia (1.00)**: Alta devido ao desbalanceamento, mas não reflete totalmente o desempenho em fraudes. Por isso, focamos em recall e AUC.
-- **AUC-ROC (0,93)**: Indica excelente capacidade de discriminação entre classes.
+### Métricas de Avaliação
+- **Precisão para fraudes**: 0,86, indicando que 86% das transações classificadas como fraudes são realmente fraudes.
+- **Recall para fraudes**: 0,78, indicando que 78% das fraudes foram detectadas.
+- **F1-score para fraudes**: 0,82, equilibrando precisão e recall.
+- **AUC-ROC**: 0,93, mostrando excelente capacidade de discriminação.
 """)
 
 # Seção: Considerações para a Defesa
 st.header("📝 Considerações para a Defesa")
 st.markdown("""
-Este projeto é um marco no meu percurso acadêmico na **Universidade Mandume Ya Ndemufayo**, demonstrando:
-- **Relevância prática**: A detecção de fraudes é vital em Angola, onde os pagamentos digitais estão crescendo, protegendo consumidores e bancos.
-- **Rigor técnico**: Uso de Random Forest com SMOTE para lidar com desbalanceamento, alcançando AUC-ROC de 0,93 e recall de 0,78 para fraudes.
-- **Métricas claras**: Falsos negativos (33) e falsos positivos (19) foram minimizados, com ênfase em detectar fraudes (115/148).
-- **Visualizações interativas**: Gráficos (matriz de confusão, curva ROC) facilitam a explicação do desempenho.
+Este projeto demonstra:
+- **Relevância prática**: A detecção de fraudes é crítica para o setor financeiro, especialmente em Angola, onde a adoção de pagamentos digitais está crescendo.
+- **Rigor técnico**: Uso de Random Forest com SMOTE para lidar com o desbalanceamento, alcançando um AUC-ROC de 0,93 e minimizando falsos negativos (33).
+- **Visualizações claras**: Gráficos interativos (matriz de confusão, curva ROC) facilitam a explicação do desempenho do modelo.
+- **Contexto acadêmico**: Como estudante da Universidade Mandume Ya Ndemufayo, este projeto reflete meu aprendizado em ciência de dados e machine learning.
 - **Escalabilidade**: A aplicação Streamlit permite uso em tempo real, com potencial para integração em sistemas bancários.
 
-**Pontos para a Defesa**:
-- **Problema**: Detecção de fraudes é crítica devido ao impacto financeiro dos falsos negativos.
-- **Solução**: Random Forest com SMOTE supera Regressão Logística, reduzindo falsos negativos de 44 para 33.
-- **Resultados**: Acurácia de 1,00, recall de 0,78 para fraudes e AUC de 0,93 mostram confiabilidade.
-- **Contexto local**: O projeto é relevante para Angola, promovendo segurança em transações digitais.
+Para a defesa, destaco:
+- A escolha do Random Forest foi baseada em sua robustez e capacidade de minimizar falsos negativos, cruciais para evitar perdas financeiras.
+- O uso do SMOTE resolveu o desbalanceamento, garantindo que o modelo aprendesse padrões de fraudes.
+- As métricas (recall 0,78, AUC 0,93) mostram que o modelo é confiável para aplicações reais.
+- O código está disponível no GitHub, garantindo reprodutibilidade, e foi desenvolvido no Google Colab, demonstrando familiaridade com ferramentas modernas.
 
-O código está no GitHub, garantindo reprodutibilidade, e foi desenvolvido no Google Colab, mostrando familiaridade com ferramentas modernas. Estou preparado para discutir detalhes técnicos e responder perguntas durante a defesa.
+Estou preparado para responder perguntas sobre o modelo, métricas e implementação durante a defesa.
 """)
 
 # Rodapé
 st.markdown("---")
-st.markdown("Desenvolvido por **Pedro Calenga** | Universidade Mandume Ya Ndemufayo - Instituto Politécnico da Huíla | Maio 2025")
+st.markdown("Desenvolvido por **Pedro Calenga** | Universidade Mandume Ya Ndemufayo - Instituto Politécnico da Huíla | 2025")
