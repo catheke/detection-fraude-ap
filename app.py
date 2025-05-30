@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix, roc_curve, auc
+import os
 
 # Configuração do layout da página
 st.set_page_config(page_title="Detecção de Fraudes em Cartões de Crédito", layout="wide")
@@ -18,14 +19,27 @@ st.markdown("Desenvolvido por Pedro Calenga, estudante da Universidade Mandume Y
 st.sidebar.header("Navegação")
 page = st.sidebar.radio("Selecione uma seção:", ["Previsão", "Sobre Mim", "Sobre o Projeto", "Análise do Dataset"])
 
-# Carregar o modelo e o scaler
+# Verificar e carregar o modelo e o scaler
+model_path = 'rf_model.pkl'
+scaler_path = 'scaler.pkl'
+
+if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+    st.error("Erro: Arquivos 'rf_model.pkl' ou 'scaler.pkl' não encontrados. Certifique-se de que estão no diretório da aplicação.")
+    st.markdown("""
+    Por favor, faça download dos arquivos do repositório:
+    - [rf_model.pkl](https://github.com/catheke/detection-fraude-ap/blob/main/rf_model.pkl)
+    - [scaler.pkl](https://github.com/catheke/detection-fraude-ap/blob/main/scaler.pkl)
+    e coloque-os no mesmo diretório que `app.py`.
+    """)
+    st.stop()
+
 try:
-    with open('rf_model.pkl', 'rb') as model_file:
+    with open(model_path, 'rb') as model_file:
         rf_model = pickle.load(model_file)
-    with open('scaler.pkl', 'rb') as scaler_file:
+    with open(scaler_path, 'rb') as scaler_file:
         scaler = pickle.load(scaler_file)
-except FileNotFoundError:
-    st.error("Erro: Arquivos 'rf_model.pkl' ou 'scaler.pkl' não encontrados. Certifique-se de que estão no diretório correto.")
+except Exception as e:
+    st.error(f"Erro ao carregar os arquivos: {str(e)}")
     st.stop()
 
 # Seção de Previsão
