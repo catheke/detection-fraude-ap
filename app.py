@@ -7,6 +7,8 @@ import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 import os
+import sys
+import sklearn
 
 # Configuração do layout da página
 st.set_page_config(page_title="Detecção de Fraudes em Cartões de Crédito", layout="wide")
@@ -24,12 +26,13 @@ model_path = 'rf_model.pkl'
 scaler_path = 'scaler.pkl'
 
 if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-    st.error("Erro: Arquivos 'rf_model.pkl' ou 'scaler.pkl' não encontrados. Certifique-se de que estão no diretório da aplicação.")
+    st.error("Erro: Arquivos 'rf_model.pkl' ou 'scaler.pkl' não encontrados no diretório da aplicação.")
     st.markdown("""
     Por favor, faça download dos arquivos do repositório:
     - [rf_model.pkl](https://github.com/catheke/detection-fraude-ap/blob/main/rf_model.pkl)
     - [scaler.pkl](https://github.com/catheke/detection-fraude-ap/blob/main/scaler.pkl)
-    e coloque-os no mesmo diretório que `app.py`.
+    e coloque-os no mesmo diretório que `app.py`.  
+    Certifique-se de que os arquivos foram gerados corretamente no seu notebook.
     """)
     st.stop()
 
@@ -40,6 +43,15 @@ try:
         scaler = pickle.load(scaler_file)
 except Exception as e:
     st.error(f"Erro ao carregar os arquivos: {str(e)}")
+    st.markdown("""
+    Este erro pode ocorrer devido a:
+    - **Incompatibilidade de versões**: Os arquivos foram gerados numa versão do Python ou scikit-learn diferente da atual.
+      - Versão atual do Python: `{}`  
+      - Versão atual do scikit-learn: `{}`  
+      Verifique as versões usadas no notebook `/home/oem/Transferências/Random_Forest_Fraude.ipynb` e regenere os arquivos `.pkl` no mesmo ambiente.
+    - **Corrupção do arquivo**: Regenere os arquivos `.pkl` no seu notebook.
+    - **Problema de codificação**: Certifique-se de que o modelo e o scaler foram salvos corretamente com `pickle.dump`.
+    """.format(sys.version, sklearn.__version__))
     st.stop()
 
 # Seção de Previsão
@@ -69,13 +81,21 @@ if page == "Previsão":
         input_df = pd.DataFrame(input_data, columns=[f"V{i}" for i in range(1, 29)] + ['Time', 'Amount'])
         
         # Normalizar Time e Amount
-        input_df['Normalized_Amount'] = scaler.transform(input_df[['Amount']])
-        input_df['Normalized_Time'] = scaler.transform(input_df[['Time']])
-        input_df = input_df.drop(['Time', 'Amount'], axis=1)
+        try:
+            input_df['Normalized_Amount'] = scaler.transform(input_df[['Amount']])
+            input_df['Normalized_Time'] = scaler.transform(input_df[['Time']])
+            input_df = input_df.drop(['Time', 'Amount'], axis=1)
+        except Exception as e:
+            st.error(f"Erro ao normalizar os dados: {str(e)}")
+            st.stop()
         
         # Fazer previsão
-        prediction = rf_model.predict(input_df)[0]
-        prediction_proba = rf_model.predict_proba(input_df)[0]
+        try:
+            prediction = rf_model.predict(input_df)[0]
+            prediction_proba = rf_model.predict_proba(input_df)[0]
+        except Exception as e:
+            st.error(f"Erro ao fazer a previsão: {str(e)}")
+            st.stop()
         
         # Exibir resultado
         st.subheader("Resultado da Previsão")
