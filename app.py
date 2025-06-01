@@ -4,8 +4,9 @@ import joblib
 import os
 
 # Caminhos dos ficheiros
-MODEL_PATH = os.path.join("model", "rf_model.pkl")
-SCALER_PATH = os.path.join("model", "scaler.pkl")
+MODEL_PATH = "rf_model.pkl"
+SCALER_PATH = "scaler.pkl"
+
 
 # Carregar modelo e scaler
 rf_model = joblib.load(MODEL_PATH)
